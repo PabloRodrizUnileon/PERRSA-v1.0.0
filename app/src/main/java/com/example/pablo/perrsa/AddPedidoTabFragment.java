@@ -2,15 +2,24 @@ package com.example.pablo.perrsa;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ImageView;
-import android.widget.RelativeLayout;
-import android.widget.TextView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Toast;
+
+import com.example.pablo.perrsa.Adapter.MyRecyclerViewAdapter;
+import com.example.pablo.perrsa.Objetos.Pedido;
+import com.example.pablo.perrsa.Objetos.ProductoItem;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by Pablo on 6/1/18.
@@ -18,12 +27,21 @@ import android.widget.TextView;
 
 public class AddPedidoTabFragment extends Fragment {
 
+    private DatabaseReference mDatabase;
+// ...
+
+
+
     boolean isTablet;
+    boolean mDualPane;
+    RecyclerView recyclerViewProductos;
+    MyRecyclerViewAdapter adapter;
+    Map<String, ProductoItem> productoItemsList;
 
-    View card1, card2, card3, card4;
-    ImageView img1, img2, img3, img4;
-    TextView txt1, txt2, txt3, txt4;
 
+    private Button btnAdd, btnBorrar;
+    private EditText editText_ordenante, editText_pueblo, editText_direccion, editText_fechaPedido, editText_hora_pedido;
+    private String ordenante, pueblo, direccion, fecha_pedido, hora_pedido;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -36,108 +54,83 @@ public class AddPedidoTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         //((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Fragment uno");
         View rootView = inflater.inflate(R.layout.fragment_add_pedido, container, false);
+        mDualPane = rootView.findViewById(R.id.pedidoFragment) != null;
+        recyclerViewProductos = rootView.findViewById(R.id.recycler_view_layour_recycler);
+        recyclerViewProductos.setLayoutManager(new LinearLayoutManager(getContext()));
+        adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
+        recyclerViewProductos.setAdapter(adapter);
+        recyclerViewProductos.setItemViewCacheSize(getDummyData().size());
 
-        card1 = rootView.findViewById(R.id.include);
-        txt1 = card1.findViewById(R.id.title);
-
-        card2 = rootView.findViewById(R.id.include2);
-        txt2 = card2.findViewById(R.id.title);
-
-        card3 = rootView.findViewById(R.id.include3);
-        txt3 = card3.findViewById(R.id.title);
-
-        card4 = rootView.findViewById(R.id.include4);
-        txt4 = card4.findViewById(R.id.title);
-
-
-        img1 = card1.findViewById(R.id.thumbnail);
-        img2 = card2.findViewById(R.id.thumbnail);
-        img3 = card3.findViewById(R.id.thumbnail);
-        img4 = card4.findViewById(R.id.thumbnail);
-        img1.setImageResource(R.drawable.pan2);
-        img2.setImageResource(R.drawable.pastas2);
-        img3.setImageResource(R.drawable.empanada);
-        img4.setImageResource(R.drawable.reposteria);
+        if(mDualPane){
+            editText_ordenante = rootView.findViewById(R.id.edit_cliente);
+            editText_pueblo = rootView.findViewById(R.id.edit_pueblo);
+            editText_direccion = rootView.findViewById(R.id.edit_direccion);
+            editText_fechaPedido = rootView.findViewById(R.id.edit_fecha);
+            editText_hora_pedido = rootView.findViewById(R.id.edit_hora);
 
 
-        txt1.setText("PANADERIA");
 
 
-        txt2.setText("PASTAS");
+            btnAdd = rootView.findViewById(R.id.btn_add);
+            btnBorrar = rootView.findViewById(R.id.btn_borrar);
+            btnAdd.setOnClickListener(v -> {
+                ordenante = editText_ordenante.getText().toString();
+                pueblo = editText_pueblo.getText().toString();
+                direccion= editText_direccion.getText().toString();
+                fecha_pedido = editText_fechaPedido.getText().toString();
+                hora_pedido = editText_hora_pedido.getText().toString();
 
+                productoItemsList = adapter.getProductosAdd();
+                Pedido pedido = new Pedido(ordenante, pueblo, direccion, fecha_pedido, hora_pedido, productoItemsList);
+                writePedido(pedido);
+                Toast.makeText(getContext(), "Producto añadido", Toast.LENGTH_SHORT).show();
+            });
 
-        txt3.setText("EMPANADAS");
-
-
-        txt4.setText("REPOSTERIA");
-
-
-        setListeners();
+            btnBorrar.setOnClickListener(v -> {
+                resetLayout();
+            });
+        }
 
         return rootView;
     }
 
-    private void setListeners() {
-        card1.setOnClickListener(view -> {
-            clickOnCard(txt1);
-        });
+    private void resetLayout() {
+        editText_ordenante.setText("");
+        editText_pueblo.setText("");
+        editText_direccion.setText("");
+        editText_fechaPedido.setText("");
+        editText_hora_pedido.setText("");
 
-        card2.setOnClickListener(view -> {
-            clickOnCard(txt2);
-        });
-
-        card3.setOnClickListener(view -> {
-            clickOnCard(txt3);
-        });
-
-        card4.setOnClickListener(view -> {
-            clickOnCard(txt4);
-        });
+        adapter.resetData(getDummyData());
 
     }
 
-    private void clickOnCard(TextView textView) {
-
-
-        resetCardsTouch();
-
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, img1.getId());
-        textView.setLayoutParams(layoutParams);
-        textView.setTextSize(32);
-        textView.setGravity(View.TEXT_ALIGNMENT_CENTER);
-        textView.setBackgroundColor(getResources().getColor(R.color.shadeexpandido));
-    }
-
-    private void resetCardsTouch() {
-
-        RelativeLayout.LayoutParams layoutParams = new RelativeLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT);
-
-        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, img1.getId());
-        txt1.setLayoutParams(layoutParams);
-        txt1.setTextSize(18);
-        txt1.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
-        txt1.setBackgroundColor(getResources().getColor(R.color.shadeInicial));
-
-        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, img2.getId());
-        txt2.setLayoutParams(layoutParams);
-        txt2.setTextSize(18);
-        txt2.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
-        txt2.setBackgroundColor(getResources().getColor(R.color.shadeInicial));
-
-        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, img3.getId());
-        txt3.setLayoutParams(layoutParams);
-        txt3.setTextSize(18);
-        txt3.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
-        txt3.setBackgroundColor(getResources().getColor(R.color.shadeInicial));
-
-        layoutParams.addRule(RelativeLayout.ALIGN_BOTTOM, img4.getId());
-        txt4.setLayoutParams(layoutParams);
-        txt4.setTextSize(18);
-        txt4.setGravity(View.TEXT_ALIGNMENT_TEXT_START);
-        txt4.setBackgroundColor(getResources().getColor(R.color.shadeInicial));
+    private void writePedido(Pedido pedido) {
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("pedidos").push().setValue(pedido);
 
     }
+
+    private static ArrayList<ProductoItem> getDummyData(){
+        ArrayList<ProductoItem> result = new ArrayList<ProductoItem>();
+        result.add(new ProductoItem("Empanada de chorizo", 1,false));
+        result.add(new ProductoItem("Empanada de cecina", 1,false));
+        result.add(new ProductoItem("Empanada de bonito", 1,false));
+        result.add(new ProductoItem("Hogaza", 1,false));
+        result.add(new ProductoItem("Melondro", 1,false));
+        result.add(new ProductoItem("Montejo", 1,false));
+        result.add(new ProductoItem("Barra pequeña", 1,false));
+        result.add(new ProductoItem("Barra grande", 1,false));
+        result.add(new ProductoItem("Lenguas de mantequilla", 1,false));
+        result.add(new ProductoItem("Pastas de te", 1,false));
+        result.add(new ProductoItem("Pastas de nueces", 1,false));
+        result.add(new ProductoItem("Croissant", 1,false));
+        result.add(new ProductoItem("Napolitana", 1,false));
+        result.add(new ProductoItem("Donut", 1,false));
+        return result;
+    }
+
+
 
 
 }
