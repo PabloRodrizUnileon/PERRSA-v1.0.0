@@ -58,8 +58,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     private static final int REQUEST_READ_CONTACTS = 0;
 
 
-
-
     // UI reference
     private AutoCompleteTextView mEmailView;
     private EditText mPasswordView;
@@ -76,7 +74,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         // Coger la instancia de FirebaseAuth
         mAuth = FirebaseAuth.getInstance();
-        if(mAuth.getCurrentUser() != null){
+        if (mAuth.getCurrentUser() != null) {
             startActivity(new Intent(LoginActivity.this, MenuPrincipal.class));
             finish();
         }
@@ -103,8 +101,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
-                    return true;
+                    if (!TextUtils.isEmpty(mPasswordView.getText())) {
+                        attemptLogin();
+                        return true;
+                    } else {
+                        mPasswordView.setError("Introduce contraseña");
+                    }
                 }
                 return false;
             }
@@ -114,7 +116,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         mEmailSignInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                attemptLogin();
+                if (!TextUtils.isEmpty(mPasswordView.getText())) {
+                    attemptLogin();
+                } else {
+                    mPasswordView.setError("Introduce contraseña");
+                }
             }
         });
 
@@ -206,6 +212,12 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             cancel = true;
         }
 
+        if(mEmailView.getText().toString().contains("jefe")){
+            Toast.makeText(this, "Aplicacion solo para empleados, descargar PERRSA-Admin", Toast.LENGTH_SHORT).show();
+            cancel = true;
+            return;
+        }
+
         // Check for a valid email address.
         if (TextUtils.isEmpty(email)) {
             mEmailView.setError(getString(R.string.error_field_required));
@@ -239,7 +251,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 Log.w(TAG, "signInWithEmail:failed", task.getException());
                                 Toast.makeText(LoginActivity.this, R.string.auth_failed,
                                         Toast.LENGTH_SHORT).show();
-                            }else{
+                            } else {
                                 startActivity(new Intent(LoginActivity.this, MenuPrincipal.class));
                             }
 

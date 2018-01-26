@@ -1,7 +1,10 @@
 package com.example.pablo.perrsa;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -14,8 +17,12 @@ import android.widget.Toast;
 import com.example.pablo.perrsa.Adapter.MyRecyclerViewAdapter;
 import com.example.pablo.perrsa.Objetos.Pedido;
 import com.example.pablo.perrsa.Objetos.ProductoItem;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -31,28 +38,50 @@ public class AddPedidoTabFragment extends Fragment {
 // ...
 
 
+    private FirebaseAuth mAuth;
 
     boolean isTablet;
     boolean mDualPane;
     RecyclerView recyclerViewProductos;
     MyRecyclerViewAdapter adapter;
     Map<String, ProductoItem> productoItemsList;
+    String userUId = "jiji";
+    String userName = "sd";
+    private ActionBar actionBar;
 
 
-    private Button btnAdd, btnBorrar;
+
+    private Button btnAdd, btnBorrar, btn_siguiente;
     private EditText editText_ordenante, editText_pueblo, editText_direccion, editText_fechaPedido, editText_hora_pedido;
     private String ordenante, pueblo, direccion, fecha_pedido, hora_pedido;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mDatabase = FirebaseDatabase.getInstance().getReference();
         isTablet = getResources().getBoolean(R.bool.isTablet);
+        mAuth = FirebaseAuth.getInstance();
+        userUId = mAuth.getCurrentUser().getUid();
+        actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        mDatabase.addValueEventListener(new ValueEventListener() {
+
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                userName = dataSnapshot.child("users").child(userUId).child("name").getValue(String.class);
+                actionBar.setTitle(userName);
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
 
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        //((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("Fragment uno");
         View rootView = inflater.inflate(R.layout.fragment_add_pedido, container, false);
         mDualPane = rootView.findViewById(R.id.pedidoFragment) != null;
         recyclerViewProductos = rootView.findViewById(R.id.recycler_view_layour_recycler);
@@ -67,8 +96,6 @@ public class AddPedidoTabFragment extends Fragment {
             editText_direccion = rootView.findViewById(R.id.edit_direccion);
             editText_fechaPedido = rootView.findViewById(R.id.edit_fecha);
             editText_hora_pedido = rootView.findViewById(R.id.edit_hora);
-
-
 
 
             btnAdd = rootView.findViewById(R.id.btn_add);
@@ -88,26 +115,53 @@ public class AddPedidoTabFragment extends Fragment {
 
             btnBorrar.setOnClickListener(v -> {
                 resetLayout();
+                adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
+                recyclerViewProductos.setAdapter(adapter);
             });
+        } else{
+            btn_siguiente = rootView.findViewById(R.id.btn_siguiente);
+            Pedido pedido = new Pedido();
+            pedido.setProductos(adapter.getProductosAdd());
+            Bundle data = new Bundle();
+            data.putSerializable("pedido", pedido);
+            btn_siguiente.setOnClickListener(v -> {
+                Intent intent = new Intent(getActivity(), PedidoActivity.class);
+                intent.putExtras(data);
+                startActivity(intent);
+
+                adapter.clearData();
+                adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
+                recyclerViewProductos.setAdapter(adapter);
+            });
+
         }
 
         return rootView;
     }
 
     private void resetLayout() {
+
+        resetTotalLayout();
+
+
+    }
+
+    private void resetTotalLayout(){
         editText_ordenante.setText("");
         editText_pueblo.setText("");
         editText_direccion.setText("");
         editText_fechaPedido.setText("");
         editText_hora_pedido.setText("");
 
-        adapter.resetData(getDummyData());
-
+        adapter.clearData();
     }
 
     private void writePedido(Pedido pedido) {
-        mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("pedidos").push().setValue(pedido);
+
+        String key = mDatabase.child("pedidos").push().getKey();
+        mDatabase.child("pedidos").child(key).setValue(pedido);
+        mDatabase.child("users").child(userUId).child("pedidos").push().setValue(key);
+
 
     }
 

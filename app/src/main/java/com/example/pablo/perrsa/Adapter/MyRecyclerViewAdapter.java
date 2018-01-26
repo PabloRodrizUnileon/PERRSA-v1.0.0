@@ -32,27 +32,22 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return productosAdd;
     }
 
-    public void resetData(List<ProductoItem> productosListNew){
-        productosAdd.clear();
-        productosList.clear();
-        productosList = productosListNew;
-        notifyDataSetChanged();
+    public void clearData(){
+        int size = this.productosList.size();
+        if(size > 0){
+            for(int i = 0; i < size; i++){
+                this.productosList.remove(0);
+            }
+            this.notifyItemRangeRemoved(0, size);
+        }
     }
+
+
 
     public MyRecyclerViewAdapter(Context context, List<ProductoItem> productosList) {
         this.productosList = productosList;
         this.mContext = context;
     }
-
-//    @Override
-//    public long getItemId(int position) {
-//        return position;
-//    }
-//
-//    @Override
-//    public int getItemViewType(int position) {
-//        return position;
-//    }
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
@@ -67,6 +62,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
                 viewHolder.checkBox.setVisibility(View.INVISIBLE);
             }
         });
+
         return viewHolder;
     }
 
@@ -94,11 +90,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         });
 
 
+
     }
 
     @Override
     public int getItemCount() {
-        return (null != productosList ? productosList.size() : 0);
+        return productosList.size();
 
     }
 
@@ -112,8 +109,8 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             this.textViewTitulo = view.findViewById(R.id.textView_title);
             this.editTextCantidad = view.findViewById(R.id.editTextCantidad);
             this.checkBox = view.findViewById(R.id.checkbox_item);
-            this.setIsRecyclable(false);
         }
+
     }
 }
 

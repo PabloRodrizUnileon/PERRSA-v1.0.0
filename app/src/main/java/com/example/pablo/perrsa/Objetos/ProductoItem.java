@@ -44,4 +44,14 @@ public class ProductoItem implements Serializable{
     public void setChecked(boolean checked) {
         this.checked = checked;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if(obj == null)
+            return false;
+        ProductoItem itemCompare = (ProductoItem) obj;
+        if(itemCompare.getTitle().equals(this.getTitle()))
+            return true;
+        return false;
+    }
 }

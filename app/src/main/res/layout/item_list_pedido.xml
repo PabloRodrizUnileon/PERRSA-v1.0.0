@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:paddingTop="6dp"
+    android:padding="6dp">
+
+    <TextView
+        android:id="@+id/textView_ordenante"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
+        android:padding="6dp"
+        tools:text="Ordenante" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="17dp"
+        android:layout_toEndOf="@+id/textView_ordenante"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/textView_pueblo"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginStart="38dp"
+        android:layout_toEndOf="@+id/textView_ordenante"
+        android:padding="6dp"
+        tools:text="Pueblo" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="29dp"
+        android:layout_toEndOf="@+id/textView_pueblo"
+        android:background="?android:attr/listDivider"
+        android:id="@+id/view1" />
+
+    <TextView
+        android:id="@+id/textView_direccion"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView_pueblo"
+        android:layout_alignBottom="@+id/textView_pueblo"
+        android:layout_marginStart="26dp"
+        android:layout_toEndOf="@+id/view1"
+        android:padding="6dp"
+        tools:text="Direccion" />
+
+    <View
+        android:id="@+id/view2"
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_marginStart="31dp"
+        android:layout_toEndOf="@+id/textView_direccion"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/textView_fecha"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/textView_pueblo"
+        android:layout_alignBottom="@+id/textView_pueblo"
+        android:layout_marginStart="26dp"
+        android:layout_toEndOf="@+id/view2"
+        android:padding="6dp"
+        tools:text="Fecha" />
+
+
+    <View
+        android:id="@+id/view3"
+        android:layout_width="1dp"
+        android:layout_height="fill_parent"
+        android:layout_alignTop="@+id/view2"
+        android:layout_marginStart="34dp"
+        android:layout_toEndOf="@+id/textView_fecha"
+        android:background="?android:attr/listDivider" />
+
+    <TextView
+        android:id="@+id/textView_productos"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="78dp"
+        android:padding="6dp"
+        tools:text="Fecha" />
+
+</RelativeLayout>

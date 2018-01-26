@@ -2,6 +2,7 @@ package com.example.pablo.perrsa.Objetos;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -11,6 +12,7 @@ import java.util.Map;
 
 public class Pedido implements Serializable {
     private Map<String, ProductoItem> productos;
+    private String productosString;
     private String ordenante, pueblo, direccion, fecha_pedido, hora_pedido;
 
     public Pedido(){
@@ -72,6 +74,26 @@ public class Pedido implements Serializable {
 
     public void setHora_pedido(String hora_pedido) {
         this.hora_pedido = hora_pedido;
+    }
+
+    public String getProductosString() {
+        String result = "";
+        Iterator it = productos.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry pair = (Map.Entry)it.next();
+            result = result + pair.getKey() + ":" + pair.getValue() + " ";
+            it.remove(); // avoids a ConcurrentModificationException
+        }
+        return result;
+    }
+
+    public void setProductosString(String productosString) {
+        this.productosString = productosString;
+    }
+
+    @Override
+    public String toString() {
+        return ordenante + " " + pueblo + " " + direccion + " ";
     }
 }
 
