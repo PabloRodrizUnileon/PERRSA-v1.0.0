@@ -45,10 +45,9 @@ public class AddPedidoTabFragment extends Fragment {
     RecyclerView recyclerViewProductos;
     MyRecyclerViewAdapter adapter;
     Map<String, ProductoItem> productoItemsList;
-    String userUId = "jiji";
-    String userName = "sd";
+    String userUId = "";
+    String userName = "";
     private ActionBar actionBar;
-
 
 
     private Button btnAdd, btnBorrar, btn_siguiente;
@@ -62,7 +61,7 @@ public class AddPedidoTabFragment extends Fragment {
         isTablet = getResources().getBoolean(R.bool.isTablet);
         mAuth = FirebaseAuth.getInstance();
         userUId = mAuth.getCurrentUser().getUid();
-        actionBar = ((AppCompatActivity)getActivity()).getSupportActionBar();
+        actionBar = ((AppCompatActivity) getActivity()).getSupportActionBar();
         mDatabase.addValueEventListener(new ValueEventListener() {
 
             @Override
@@ -90,7 +89,7 @@ public class AddPedidoTabFragment extends Fragment {
         recyclerViewProductos.setAdapter(adapter);
         recyclerViewProductos.setItemViewCacheSize(getDummyData().size());
 
-        if(mDualPane){
+        if (mDualPane) {
             editText_ordenante = rootView.findViewById(R.id.edit_cliente);
             editText_pueblo = rootView.findViewById(R.id.edit_pueblo);
             editText_direccion = rootView.findViewById(R.id.edit_direccion);
@@ -103,7 +102,7 @@ public class AddPedidoTabFragment extends Fragment {
             btnAdd.setOnClickListener(v -> {
                 ordenante = editText_ordenante.getText().toString();
                 pueblo = editText_pueblo.getText().toString();
-                direccion= editText_direccion.getText().toString();
+                direccion = editText_direccion.getText().toString();
                 fecha_pedido = editText_fechaPedido.getText().toString();
                 hora_pedido = editText_hora_pedido.getText().toString();
 
@@ -115,20 +114,34 @@ public class AddPedidoTabFragment extends Fragment {
 
             btnBorrar.setOnClickListener(v -> {
                 resetLayout();
+                adapter.clearData();
                 adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
                 recyclerViewProductos.setAdapter(adapter);
             });
-        } else{
+        } else {
             btn_siguiente = rootView.findViewById(R.id.btn_siguiente);
+            Button btn_borrar = rootView.findViewById(R.id.btn_resetData);
             Pedido pedido = new Pedido();
-            pedido.setProductos(adapter.getProductosAdd());
             Bundle data = new Bundle();
-            data.putSerializable("pedido", pedido);
-            btn_siguiente.setOnClickListener(v -> {
-                Intent intent = new Intent(getActivity(), PedidoActivity.class);
-                intent.putExtras(data);
-                startActivity(intent);
 
+            btn_siguiente.setOnClickListener(v -> {
+                if (adapter.getProductosAdd().isEmpty()) {
+                    Toast.makeText(getActivity(), "SELECCIONAR PRODUCTO Y CANTIDAD", Toast.LENGTH_SHORT).show();
+                } else {
+                    pedido.setProductos(adapter.getProductosAdd());
+                    Intent intent = new Intent(getActivity(), PedidoActivity.class);
+
+                    data.putSerializable("pedido", pedido);
+                    intent.putExtras(data);
+                    startActivity(intent);
+
+                    adapter.clearData();
+                    adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
+                    recyclerViewProductos.setAdapter(adapter);
+                }
+            });
+
+            btn_borrar.setOnClickListener(v -> {
                 adapter.clearData();
                 adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
                 recyclerViewProductos.setAdapter(adapter);
@@ -141,50 +154,45 @@ public class AddPedidoTabFragment extends Fragment {
 
     private void resetLayout() {
 
-        resetTotalLayout();
-
-
-    }
-
-    private void resetTotalLayout(){
         editText_ordenante.setText("");
         editText_pueblo.setText("");
         editText_direccion.setText("");
         editText_fechaPedido.setText("");
         editText_hora_pedido.setText("");
 
-        adapter.clearData();
+
     }
 
     private void writePedido(Pedido pedido) {
 
         String key = mDatabase.child("pedidos").push().getKey();
+        pedido.setPushId(key);
+        pedido.setUserId(userUId);
         mDatabase.child("pedidos").child(key).setValue(pedido);
-        mDatabase.child("users").child(userUId).child("pedidos").push().setValue(key);
+        mDatabase.child("users").child(userUId).child("pedidos").child(key).setValue(true);
+//        mDatabase.child("users").child(userUId).child("pedidos").push().setValue(key);
 
 
     }
 
-    private static ArrayList<ProductoItem> getDummyData(){
+    private static ArrayList<ProductoItem> getDummyData() {
         ArrayList<ProductoItem> result = new ArrayList<ProductoItem>();
-        result.add(new ProductoItem("Empanada de chorizo", 1,false));
-        result.add(new ProductoItem("Empanada de cecina", 1,false));
-        result.add(new ProductoItem("Empanada de bonito", 1,false));
-        result.add(new ProductoItem("Hogaza", 1,false));
-        result.add(new ProductoItem("Melondro", 1,false));
-        result.add(new ProductoItem("Montejo", 1,false));
-        result.add(new ProductoItem("Barra pequeña", 1,false));
-        result.add(new ProductoItem("Barra grande", 1,false));
-        result.add(new ProductoItem("Lenguas de mantequilla", 1,false));
-        result.add(new ProductoItem("Pastas de te", 1,false));
-        result.add(new ProductoItem("Pastas de nueces", 1,false));
-        result.add(new ProductoItem("Croissant", 1,false));
-        result.add(new ProductoItem("Napolitana", 1,false));
-        result.add(new ProductoItem("Donut", 1,false));
+        result.add(new ProductoItem("Empanada de chorizo", 1, false));
+        result.add(new ProductoItem("Empanada de cecina", 1, false));
+        result.add(new ProductoItem("Empanada de bonito", 1, false));
+        result.add(new ProductoItem("Hogaza", 1, false));
+        result.add(new ProductoItem("Melondro", 1, false));
+        result.add(new ProductoItem("Montejo", 1, false));
+        result.add(new ProductoItem("Barra pequeña", 1, false));
+        result.add(new ProductoItem("Barra grande", 1, false));
+        result.add(new ProductoItem("Lenguas de mantequilla", 1, false));
+        result.add(new ProductoItem("Pastas de te", 1, false));
+        result.add(new ProductoItem("Pastas de nueces", 1, false));
+        result.add(new ProductoItem("Croissant", 1, false));
+        result.add(new ProductoItem("Napolitana", 1, false));
+        result.add(new ProductoItem("Donut", 1, false));
         return result;
     }
-
-
 
 
 }

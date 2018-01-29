@@ -7,6 +7,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +21,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 
 
@@ -33,8 +35,8 @@ public class PedidoActivity extends AppCompatActivity {
     RecyclerView recyclerViewProductos;
     MyRecyclerViewAdapter adapter;
     Map<String, ProductoItem> productoItemsList;
-    String userUId = "jiji";
-    String userName = "sd";
+    String userUId = "";
+    String userName = "";
     private ActionBar actionBar;
     Pedido pedido;
 
@@ -49,6 +51,9 @@ public class PedidoActivity extends AppCompatActivity {
         setContentView(R.layout.activity_pedido);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        actionBar = ((AppCompatActivity)this).getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+
 
         pedido = (Pedido) getIntent().getExtras().getSerializable("pedido");
 
@@ -56,7 +61,6 @@ public class PedidoActivity extends AppCompatActivity {
         isTablet = getResources().getBoolean(R.bool.isTablet);
         mAuth = FirebaseAuth.getInstance();
         userUId = mAuth.getCurrentUser().getUid();
-        actionBar = ((AppCompatActivity)this).getSupportActionBar();
 
 
         editText_ordenante = findViewById(R.id.edit_cliente);
@@ -84,6 +88,8 @@ public class PedidoActivity extends AppCompatActivity {
 
             writePedido(pedido);
             Toast.makeText(this, "Producto añadido", Toast.LENGTH_SHORT).show();
+            resetLayout();
+            finish();
         });
 
         btnBorrar.setOnClickListener(v -> {
@@ -112,8 +118,13 @@ public class PedidoActivity extends AppCompatActivity {
     private void writePedido(Pedido pedido) {
 
         String key = mDatabase.child("pedidos").push().getKey();
+        pedido.setPushId(key);
+        pedido.setUserId(userUId);
         mDatabase.child("pedidos").child(key).setValue(pedido);
-        mDatabase.child("users").child(userUId).child("pedidos").setValue(key);
+
+        mDatabase.child("users").child(userUId).child("pedidos").child(key).setValue(true);
+
+//        mDatabase.child("users").child(userUId).child("pedidos").push().setValue(key);
 
 
     }
@@ -135,6 +146,21 @@ public class PedidoActivity extends AppCompatActivity {
         result.add(new ProductoItem("Napolitana", 1,false));
         result.add(new ProductoItem("Donut", 1,false));
         return result;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.homeAsUp) {
+            super.onBackPressed();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
 }

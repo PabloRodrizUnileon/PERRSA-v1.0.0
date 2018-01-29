@@ -1,9 +1,7 @@
 package com.example.pablo.perrsa.Objetos;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 /**
@@ -14,8 +12,9 @@ public class Pedido implements Serializable {
     private Map<String, ProductoItem> productos;
     private String productosString;
     private String ordenante, pueblo, direccion, fecha_pedido, hora_pedido;
+    private String pushId, userId;
 
-    public Pedido(){
+    public Pedido() {
 
     }
 
@@ -26,6 +25,22 @@ public class Pedido implements Serializable {
         this.fecha_pedido = fecha_pedido;
         this.hora_pedido = hora_pedido;
         this.productos = items;
+    }
+
+    public String getUserId() {
+        return userId;
+    }
+
+    public void setUserId(String userId) {
+        this.userId = userId;
+    }
+
+    public String getPushId() {
+        return pushId;
+    }
+
+    public void setPushId(String pushId) {
+        this.pushId = pushId;
     }
 
     public Map<String, ProductoItem> getProductos() {
@@ -79,10 +94,14 @@ public class Pedido implements Serializable {
     public String getProductosString() {
         String result = "";
         Iterator it = productos.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry pair = (Map.Entry)it.next();
-            result = result + pair.getKey() + ":" + pair.getValue() + " ";
-            it.remove(); // avoids a ConcurrentModificationException
+//        while (it.hasNext()) {
+//            Map.Entry pair = (Map.Entry)it.next();
+//            result = result + pair.getKey() + ":" + pair.getValue() + " ";
+//            it.remove(); // avoids a ConcurrentModificationException
+//        }
+
+        for (Map.Entry<String, ProductoItem> productoItemEntry : productos.entrySet()) {
+            result = result + productoItemEntry.getValue().toString() + " | ";
         }
         return result;
     }
@@ -93,7 +112,16 @@ public class Pedido implements Serializable {
 
     @Override
     public String toString() {
-        return ordenante + " " + pueblo + " " + direccion + " ";
+        String result = "Ordenante: " +ordenante + ";   Dirección:" + pueblo + ", " + direccion + ";   Productos: " + getProductosString();
+        return result;
+    }
+
+    public String getPedidoDetailString(){
+        String result = "Ordenante: " +ordenante
+                + "\n Dirección:" + pueblo + " " + direccion
+                + "\n Fecha:" + fecha_pedido + "-" + hora_pedido
+                + "\n Productos: " + getProductosString();
+        return result;
     }
 }
 

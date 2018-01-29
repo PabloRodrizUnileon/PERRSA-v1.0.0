@@ -2,15 +2,19 @@ package com.example.pablo.perrsa.Adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.pablo.perrsa.Objetos.ProductoItem;
 import com.example.pablo.perrsa.R;
+
+import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,16 +36,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return productosAdd;
     }
 
-    public void clearData(){
+    public void clearData() {
         int size = this.productosList.size();
-        if(size > 0){
-            for(int i = 0; i < size; i++){
+        if (size > 0) {
+            for (int i = 0; i < size; i++) {
                 this.productosList.remove(0);
             }
             this.notifyItemRangeRemoved(0, size);
         }
     }
-
 
 
     public MyRecyclerViewAdapter(Context context, List<ProductoItem> productosList) {
@@ -57,7 +60,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             if (viewHolder.editTextCantidad.getVisibility() == View.INVISIBLE) {
                 viewHolder.editTextCantidad.setVisibility(View.VISIBLE);
                 viewHolder.checkBox.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 viewHolder.editTextCantidad.setVisibility(View.INVISIBLE);
                 viewHolder.checkBox.setVisibility(View.INVISIBLE);
             }
@@ -73,22 +76,26 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
         customViewHolder.textViewTitulo.setText(productoItem.getTitle());
         customViewHolder.checkBox.setOnCheckedChangeListener((compoundButton, b) -> {
-            int cantidad = Integer.parseInt(customViewHolder.editTextCantidad.getText().toString());
-            if (b) {
+            if (TextUtils.isEmpty(customViewHolder.editTextCantidad.getText())) {
+                Toast.makeText(mContext, "Introducir cantidad", Toast.LENGTH_SHORT).show();
+            } else {
+
+
+                int cantidad = Integer.parseInt(customViewHolder.editTextCantidad.getText().toString());
+                if (b) {
 //                if(TextUtils.isEmpty(customViewHolder.editTextCantidad.getText())){
 //                    Toast.makeText(mContext, "Introducir Cantidad", Toast.LENGTH_SHORT).show();
 //                }
 
-                customViewHolder.editTextCantidad.setEnabled(false);
-                productoItem.setQuantity(cantidad);
-                productosAdd.put(productoItem.getTitle(), productoItem);
-            }else{
-                customViewHolder.editTextCantidad.setEnabled(true);
-                productosAdd.remove(productoItem);
+                    customViewHolder.editTextCantidad.setEnabled(false);
+                    productoItem.setQuantity(cantidad);
+                    productosAdd.put(productoItem.getTitle(), productoItem);
+                } else {
+                    customViewHolder.editTextCantidad.setEnabled(true);
+                    productosAdd.remove(productoItem);
+                }
             }
-
         });
-
 
 
     }
