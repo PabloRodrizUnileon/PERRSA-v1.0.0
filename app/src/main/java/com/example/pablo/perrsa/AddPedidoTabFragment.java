@@ -83,6 +83,7 @@ public class AddPedidoTabFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_add_pedido, container, false);
         mDualPane = rootView.findViewById(R.id.pedidoFragment) != null;
+
         recyclerViewProductos = rootView.findViewById(R.id.recycler_view_layour_recycler);
         recyclerViewProductos.setLayoutManager(new LinearLayoutManager(getContext()));
         adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());

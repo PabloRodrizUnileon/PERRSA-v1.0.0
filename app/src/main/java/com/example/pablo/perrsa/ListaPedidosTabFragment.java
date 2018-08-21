@@ -58,30 +58,30 @@ public class ListaPedidosTabFragment extends Fragment {
         listViewPedidos = (ListView) rootView.findViewById(R.id.listView_pedidos);
 
         mDatabase.addValueEventListener(new ValueEventListener() {
-                @Override
-                public void onDataChange(DataSnapshot dataSnapshot) {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
 
-                    pedidos.clear();
-                    pedidoslist.clear();
-
-
-                    for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
-                        //getting artist
-                        Pedido pedido = postSnapshot.getValue(Pedido.class);
-                        if(pedido.getUserId().equals(userUId)){
-                            pedidos.add(pedido.toString());
-                            pedidoslist.add(pedido);
-                        }
+                pedidos.clear();
+                pedidoslist.clear();
 
 
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    //getting artist
+                    Pedido pedido = postSnapshot.getValue(Pedido.class);
+                    if (pedido.getUserId().equals(userUId)) {
+                        pedidos.add(pedido.toString());
+                        pedidoslist.add(pedido);
                     }
 
 
-                    final ArrayAdapter<String> adapter=new ArrayAdapter<String>(getActivity(),android.R.layout.simple_dropdown_item_1line,pedidos);
-//                PedidosList pedidosList = new PedidosList(getActivity(), pedidos);
-                    //attaching adapter to the listview
-                    listViewPedidos.setAdapter(adapter);
                 }
+
+
+                final ArrayAdapter<String> adapter = new ArrayAdapter<String>(getContext(), android.R.layout.simple_dropdown_item_1line, pedidos);
+//                PedidosList pedidosList = new PedidosList(getActivity(), pedidos);
+                //attaching adapter to the listview
+                listViewPedidos.setAdapter(adapter);
+            }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
@@ -101,11 +101,8 @@ public class ListaPedidosTabFragment extends Fragment {
         });
 
 
-
         return rootView;
     }
-
-
 
 
 }

@@ -10,6 +10,7 @@ import java.util.Map;
 
 public class Pedido implements Serializable {
     private Map<String, ProductoItem> productos;
+    private String pedidoDetailString;
     private String productosString;
     private String ordenante, pueblo, direccion, fecha_pedido, hora_pedido;
     private String pushId, userId;
@@ -108,6 +109,10 @@ public class Pedido implements Serializable {
 
     public void setProductosString(String productosString) {
         this.productosString = productosString;
+    }
+
+    public void setPedidoDetailString(String pedidoDetailString) {
+        this.pedidoDetailString = pedidoDetailString;
     }
 
     @Override
