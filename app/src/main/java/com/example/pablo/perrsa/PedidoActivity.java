@@ -129,24 +129,6 @@ public class PedidoActivity extends AppCompatActivity {
 
     }
 
-    private static ArrayList<ProductoItem> getDummyData(){
-        ArrayList<ProductoItem> result = new ArrayList<ProductoItem>();
-        result.add(new ProductoItem("Empanada de chorizo", 1,false));
-        result.add(new ProductoItem("Empanada de cecina", 1,false));
-        result.add(new ProductoItem("Empanada de bonito", 1,false));
-        result.add(new ProductoItem("Hogaza", 1,false));
-        result.add(new ProductoItem("Melondro", 1,false));
-        result.add(new ProductoItem("Montejo", 1,false));
-        result.add(new ProductoItem("Barra pequeña", 1,false));
-        result.add(new ProductoItem("Barra grande", 1,false));
-        result.add(new ProductoItem("Lenguas de mantequilla", 1,false));
-        result.add(new ProductoItem("Pastas de te", 1,false));
-        result.add(new ProductoItem("Pastas de nueces", 1,false));
-        result.add(new ProductoItem("Croissant", 1,false));
-        result.add(new ProductoItem("Napolitana", 1,false));
-        result.add(new ProductoItem("Donut", 1,false));
-        return result;
-    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
