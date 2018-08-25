@@ -6,27 +6,44 @@ import java.io.Serializable;
  * Created by Pablo on 24/01/2018.
  */
 
-public class ProductoItem implements Serializable{
-    private String title;
+public class ProductoItem implements Serializable {
+    private String id;
+    private String name;
+    private double price;
     private int quantity;
-    private boolean checked;
 
     public ProductoItem(){
 
     }
 
-    public ProductoItem(String title, int quantity, boolean checked) {
-        this.title = title;
+    public ProductoItem(String name, double price, int quantity) {
+        this.name = name;
+        this.price = price;
         this.quantity = quantity;
-        this.checked = checked;
     }
 
-    public String getTitle() {
-        return title;
+    public String getId() {
+        return id;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public void setId(String id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public double getPrice() {
+        return price;
+    }
+
+    public void setPrice(double price) {
+        this.price = price;
     }
 
     public int getQuantity() {
@@ -37,26 +54,33 @@ public class ProductoItem implements Serializable{
         this.quantity = quantity;
     }
 
-    public boolean isChecked() {
-        return checked;
-    }
-
-    public void setChecked(boolean checked) {
-        this.checked = checked;
-    }
-
     @Override
     public String toString() {
-        return title + ": " +  quantity;
+        return "ProductoItem{" +
+                "name='" + name + '\'' +
+                ", price=" + price +
+                ", quantity=" + quantity +
+                '}';
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if(obj == null)
-            return false;
-        ProductoItem itemCompare = (ProductoItem) obj;
-        if(itemCompare.getTitle().equals(this.getTitle()))
-            return true;
-        return false;
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ProductoItem that = (ProductoItem) o;
+
+        if (Double.compare(that.price, price) != 0) return false;
+        return name.equals(that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        int result;
+        long temp;
+        result = name.hashCode();
+        temp = Double.doubleToLongBits(price);
+        result = 31 * result + (int) (temp ^ (temp >>> 32));
+        return result;
     }
 }

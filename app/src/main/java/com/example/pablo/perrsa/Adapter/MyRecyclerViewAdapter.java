@@ -36,6 +36,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return productosAdd;
     }
 
+    public MyRecyclerViewAdapter(Context context, List<ProductoItem> productosList) {
+        this.productosList = productosList;
+        this.mContext = context;
+    }
+
+
     public void clearData() {
         int size = this.productosList.size();
         if (size > 0) {
@@ -44,12 +50,6 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             }
             this.notifyItemRangeRemoved(0, size);
         }
-    }
-
-
-    public MyRecyclerViewAdapter(Context context, List<ProductoItem> productosList) {
-        this.productosList = productosList;
-        this.mContext = context;
     }
 
     @Override
@@ -74,12 +74,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         ProductoItem productoItem = productosList.get(i);
 
 
-        customViewHolder.textViewTitulo.setText(productoItem.getTitle());
+        customViewHolder.textViewTitulo.setText(productoItem.getName());
         customViewHolder.checkBox.setOnCheckedChangeListener((compoundButton, b) -> {
             if (TextUtils.isEmpty(customViewHolder.editTextCantidad.getText())) {
                 Toast.makeText(mContext, "Introducir cantidad", Toast.LENGTH_SHORT).show();
             } else {
-
 
                 int cantidad = Integer.parseInt(customViewHolder.editTextCantidad.getText().toString());
                 if (b) {
@@ -89,7 +88,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
                     customViewHolder.editTextCantidad.setEnabled(false);
                     productoItem.setQuantity(cantidad);
-                    productosAdd.put(productoItem.getTitle(), productoItem);
+                    productosAdd.put(productoItem.getName(), productoItem);
                 } else {
                     customViewHolder.editTextCantidad.setEnabled(true);
                     productosAdd.remove(productoItem);

@@ -1,5 +1,6 @@
 package com.example.pablo.perrsa;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -34,7 +35,11 @@ import java.util.Map;
 
 public class AddPedidoTabFragment extends Fragment {
 
+    //  Constantes
+    private static final int PEDIDO_ACTIVITY_REQUEST_CODE = 23;
+
     private DatabaseReference mDatabase;
+    private DatabaseReference mDatabase_Productos;
 // ...
 
 
@@ -44,6 +49,8 @@ public class AddPedidoTabFragment extends Fragment {
     boolean mDualPane;
     RecyclerView recyclerViewProductos;
     MyRecyclerViewAdapter adapter;
+    List<ProductoItem> listaProductos;
+
     Map<String, ProductoItem> productoItemsList;
     String userUId = "";
     String userName = "";
@@ -58,6 +65,8 @@ public class AddPedidoTabFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase_Productos = FirebaseDatabase.getInstance().getReference("products");
+        listaProductos = new ArrayList<>();
         isTablet = getResources().getBoolean(R.bool.isTablet);
         mAuth = FirebaseAuth.getInstance();
         userUId = mAuth.getCurrentUser().getUid();
@@ -76,7 +85,6 @@ public class AddPedidoTabFragment extends Fragment {
             }
         });
 
-
     }
 
     @Override
@@ -86,9 +94,10 @@ public class AddPedidoTabFragment extends Fragment {
 
         recyclerViewProductos = rootView.findViewById(R.id.recycler_view_layour_recycler);
         recyclerViewProductos.setLayoutManager(new LinearLayoutManager(getContext()));
-        adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
+
+        adapter = new MyRecyclerViewAdapter(getContext(), listaProductos);
         recyclerViewProductos.setAdapter(adapter);
-        recyclerViewProductos.setItemViewCacheSize(getDummyData().size());
+//        recyclerViewProductos.setItemViewCacheSize(getDummyData().size());
 
         if (mDualPane) {
             editText_ordenante = rootView.findViewById(R.id.edit_cliente);
@@ -96,61 +105,95 @@ public class AddPedidoTabFragment extends Fragment {
             editText_direccion = rootView.findViewById(R.id.edit_direccion);
             editText_fechaPedido = rootView.findViewById(R.id.edit_fecha);
             editText_hora_pedido = rootView.findViewById(R.id.edit_hora);
-
-
             btnAdd = rootView.findViewById(R.id.btn_add);
             btnBorrar = rootView.findViewById(R.id.btn_borrar);
-            btnAdd.setOnClickListener(v -> {
-                ordenante = editText_ordenante.getText().toString();
-                pueblo = editText_pueblo.getText().toString();
-                direccion = editText_direccion.getText().toString();
-                fecha_pedido = editText_fechaPedido.getText().toString();
-                hora_pedido = editText_hora_pedido.getText().toString();
-
-                productoItemsList = adapter.getProductosAdd();
-                Pedido pedido = new Pedido(ordenante, pueblo, direccion, fecha_pedido, hora_pedido, productoItemsList);
-                writePedido(pedido);
-                Toast.makeText(getContext(), "Producto añadido", Toast.LENGTH_SHORT).show();
-            });
-
-            btnBorrar.setOnClickListener(v -> {
-                resetLayout();
-                adapter.clearData();
-                adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
-                recyclerViewProductos.setAdapter(adapter);
-            });
+            setListenersDualPane();
         } else {
+
             btn_siguiente = rootView.findViewById(R.id.btn_siguiente);
-            Button btn_borrar = rootView.findViewById(R.id.btn_resetData);
-            Pedido pedido = new Pedido();
-            Bundle data = new Bundle();
-
-            btn_siguiente.setOnClickListener(v -> {
-                if (adapter.getProductosAdd().isEmpty()) {
-                    Toast.makeText(getActivity(), "SELECCIONAR PRODUCTO Y CANTIDAD", Toast.LENGTH_SHORT).show();
-                } else {
-                    pedido.setProductos(adapter.getProductosAdd());
-                    Intent intent = new Intent(getActivity(), PedidoActivity.class);
-
-                    data.putSerializable("pedido", pedido);
-                    intent.putExtras(data);
-                    startActivity(intent);
-
-                    adapter.clearData();
-                    adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
-                    recyclerViewProductos.setAdapter(adapter);
-                }
-            });
-
-            btn_borrar.setOnClickListener(v -> {
-                adapter.clearData();
-                adapter = new MyRecyclerViewAdapter(getContext(), getDummyData());
-                recyclerViewProductos.setAdapter(adapter);
-            });
-
+            btnBorrar = rootView.findViewById(R.id.btn_resetData);
+            setListenersSinglePane();
         }
 
+        mDatabase_Productos.addValueEventListener(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                listaProductos.clear();
+                for (DataSnapshot postSnapshot : dataSnapshot.getChildren()) {
+                    ProductoItem productoItem = postSnapshot.getValue(ProductoItem.class);
+                    productoItem.setId(postSnapshot.getKey());
+
+                    listaProductos.add(productoItem);
+                }
+                adapter.notifyDataSetChanged();
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
+            }
+        });
+
+
         return rootView;
+    }
+
+    private void setListenersSinglePane() {
+        Pedido pedido = new Pedido();
+        Bundle data = new Bundle();
+
+        btn_siguiente.setOnClickListener(v -> {
+            if (adapter.getProductosAdd().isEmpty()) {
+                Toast.makeText(getActivity(), "SELECCIONAR PRODUCTO Y CANTIDAD", Toast.LENGTH_SHORT).show();
+            } else {
+                pedido.setProductos(adapter.getProductosAdd());
+                Intent intent = new Intent(getActivity(), PedidoActivity.class);
+
+                data.putSerializable("pedido", pedido);
+                intent.putExtras(data);
+                startActivityForResult(intent, PEDIDO_ACTIVITY_REQUEST_CODE);
+
+            }
+        });
+
+        btnBorrar.setOnClickListener(v -> {
+            adapter = new MyRecyclerViewAdapter(getContext(), listaProductos);
+            recyclerViewProductos.setAdapter(adapter);
+        });
+    }
+
+
+    private void setListenersDualPane() {
+        btnAdd.setOnClickListener(v -> {
+            ordenante = editText_ordenante.getText().toString();
+            pueblo = editText_pueblo.getText().toString();
+            direccion = editText_direccion.getText().toString();
+            fecha_pedido = editText_fechaPedido.getText().toString();
+            hora_pedido = editText_hora_pedido.getText().toString();
+
+            productoItemsList = adapter.getProductosAdd();
+            Pedido pedido = new Pedido(ordenante, pueblo, direccion, fecha_pedido, hora_pedido, productoItemsList);
+            writePedido(pedido);
+            Toast.makeText(getContext(), "Producto añadido", Toast.LENGTH_SHORT).show();
+        });
+
+        btnBorrar.setOnClickListener(v -> {
+            resetLayout();
+            adapter = new MyRecyclerViewAdapter(getContext(), listaProductos);
+            recyclerViewProductos.setAdapter(adapter);
+        });
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == PEDIDO_ACTIVITY_REQUEST_CODE) {
+            if (resultCode == Activity.RESULT_OK) {
+                //  Resetea el adapter cuando vuelve de la activity con éxito.
+                adapter = new MyRecyclerViewAdapter(getContext(), listaProductos);
+                recyclerViewProductos.setAdapter(adapter);
+            }
+        }
     }
 
     private void resetLayout() {
@@ -160,7 +203,6 @@ public class AddPedidoTabFragment extends Fragment {
         editText_direccion.setText("");
         editText_fechaPedido.setText("");
         editText_hora_pedido.setText("");
-
 
     }
 
@@ -174,25 +216,6 @@ public class AddPedidoTabFragment extends Fragment {
 //        mDatabase.child("users").child(userUId).child("pedidos").push().setValue(key);
 
 
-    }
-
-    private static ArrayList<ProductoItem> getDummyData() {
-        ArrayList<ProductoItem> result = new ArrayList<ProductoItem>();
-        result.add(new ProductoItem("Empanada de chorizo", 1, false));
-        result.add(new ProductoItem("Empanada de cecina", 1, false));
-        result.add(new ProductoItem("Empanada de bonito", 1, false));
-        result.add(new ProductoItem("Hogaza", 1, false));
-        result.add(new ProductoItem("Melondro", 1, false));
-        result.add(new ProductoItem("Montejo", 1, false));
-        result.add(new ProductoItem("Barra pequeña", 1, false));
-        result.add(new ProductoItem("Barra grande", 1, false));
-        result.add(new ProductoItem("Lenguas de mantequilla", 1, false));
-        result.add(new ProductoItem("Pastas de te", 1, false));
-        result.add(new ProductoItem("Pastas de nueces", 1, false));
-        result.add(new ProductoItem("Croissant", 1, false));
-        result.add(new ProductoItem("Napolitana", 1, false));
-        result.add(new ProductoItem("Donut", 1, false));
-        return result;
     }
 
 

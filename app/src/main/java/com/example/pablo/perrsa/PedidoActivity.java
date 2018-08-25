@@ -89,6 +89,7 @@ public class PedidoActivity extends AppCompatActivity {
             writePedido(pedido);
             Toast.makeText(this, "Producto añadido", Toast.LENGTH_SHORT).show();
             resetLayout();
+            setResult(RESULT_OK);
             finish();
         });
 
@@ -138,7 +139,7 @@ public class PedidoActivity extends AppCompatActivity {
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.homeAsUp) {
+        if (id == android.R.id.home) {
             super.onBackPressed();
         }
 
