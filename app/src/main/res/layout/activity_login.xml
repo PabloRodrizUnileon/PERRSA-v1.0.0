@@ -74,6 +74,16 @@
                 android:background="@color/colorSecondary"
                 android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/email_register_in_button"
+                style="@style/Base.TextAppearance.AppCompat.Button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:text="@string/action_sign_in"
+                android:background="@color/colorSecondary"
+                android:textStyle="bold" />
+
         </LinearLayout>
     </ScrollView>
 </LinearLayout>

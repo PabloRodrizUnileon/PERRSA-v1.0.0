@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">PERRSA-v1.0.0</string>
+    <string name="app_name">Pizzeria de pueblo</string>
     <string name="action_logout">Deslogear</string>
     <string name="section_format">Hello World from section: %1$d</string>
 
@@ -17,5 +17,6 @@
     </string>
     <string name="auth_failed">La autenticación falló</string>
     <string name="title_activity_pedido">PedidoActivity</string>
+    <string name="register_failed">La creación de un nuevo usuario falló.</string>
 
 </resources>

@@ -28,6 +28,7 @@
         android:inputType="number"
         android:minEms="4"
         android:visibility="invisible"
+        android:maxLength="2"
         tools:visibility="visible" />
 
     <CheckBox

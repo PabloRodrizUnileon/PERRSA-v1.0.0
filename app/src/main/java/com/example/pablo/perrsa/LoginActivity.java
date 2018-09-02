@@ -33,12 +33,15 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.crashlytics.android.Crashlytics;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthException;
 import com.google.firebase.auth.FirebaseUser;
 
+import io.fabric.sdk.android.Fabric;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -70,6 +73,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Fabric.with(this, new Crashlytics());
         setContentView(R.layout.activity_login);
 
         // Coger la instancia de FirebaseAuth
@@ -92,6 +96,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 // ...
             }
         };
+
 
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
         populateAutoComplete();
@@ -118,6 +123,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             public void onClick(View view) {
                 if (!TextUtils.isEmpty(mPasswordView.getText())) {
                     attemptLogin();
+                } else {
+                    mPasswordView.setError("Introduce contraseña");
+                }
+            }
+        });
+
+        Button mEmailRegisterIn = (Button) findViewById(R.id.email_register_in_button);
+        mEmailRegisterIn.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (!TextUtils.isEmpty(mPasswordView.getText())) {
+                    attemptRegistration();
                 } else {
                     mPasswordView.setError("Introduce contraseña");
                 }
@@ -259,6 +276,99 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         }
                     });
         }
+
+    }
+
+    /**
+     * Attempts to sign in or register the account specified by the login form.
+     * If there are form errors (invalid email, missing fields, etc.), the
+     * errors are presented and no actual login attempt is made.
+     */
+    private void attemptRegistration() {
+
+
+        // Reset errors.
+        mEmailView.setError(null);
+        mPasswordView.setError(null);
+
+        // Store values at the time of the login attempt.
+        String email = mEmailView.getText().toString();
+        String password = mPasswordView.getText().toString();
+
+        boolean cancel = false;
+        View focusView = null;
+
+        // Check for a valid password, if the user entered one.
+        if (!TextUtils.isEmpty(password) && !isPasswordValid(password)) {
+            mPasswordView.setError(getString(R.string.error_invalid_password));
+            focusView = mPasswordView;
+            cancel = true;
+        }
+
+        if(mEmailView.getText().toString().contains("jefe")){
+            Toast.makeText(this, "Aplicacion solo para empleados, descargar PERRSA-Admin", Toast.LENGTH_SHORT).show();
+            cancel = true;
+            return;
+        }
+
+        // Check for a valid email address.
+        if (TextUtils.isEmpty(email)) {
+            mEmailView.setError(getString(R.string.error_field_required));
+            focusView = mEmailView;
+            cancel = true;
+        } else if (!isEmailValid(email)) {
+            mEmailView.setError(getString(R.string.error_invalid_email));
+            focusView = mEmailView;
+            cancel = true;
+        }
+
+        if (cancel) {
+            // There was an error; don't attempt login and focus the first
+            // form field with an error.
+            focusView.requestFocus();
+        } else {
+            // Show a progress spinner, and kick off a background task to
+            // perform the user login attempt.
+            showProgress(true);
+            mAuth.createUserWithEmailAndPassword(email, password)
+                    .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
+                        @Override
+                        public void onComplete(@NonNull Task<AuthResult> task) {
+                            Log.d(TAG, "signInWithEmail:onComplete:" + task.isSuccessful());
+
+                            // If sign in fails, display a message to the user. If sign in succeeds
+                            // the auth state listener will be notified and logic to handle the
+                            // signed in user can be handled in the listener.
+
+
+                            showProgress(false);
+
+                            if(task.isSuccessful()){
+                                startActivity(new Intent(LoginActivity.this, MenuPrincipal.class));
+                            }else{
+                                Exception exception = task.getException();
+                                if(((FirebaseAuthException)exception).getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")){
+                                    Toast.makeText(LoginActivity.this, "Email ya en uso", Toast.LENGTH_SHORT).show();
+                                }
+                                else{
+                                    Log.w(TAG, "signInWithEmail:failed", exception);
+                                    Toast.makeText(LoginActivity.this, ((FirebaseAuthException) exception).getErrorCode(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+
+                            }
+
+                            if (!task.isSuccessful()) {
+
+                            } else {
+
+                            }
+
+                            // ...
+                        }
+                    });
+        }
+
     }
 
     private boolean isEmailValid(String email) {
