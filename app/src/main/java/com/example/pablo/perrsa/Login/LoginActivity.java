@@ -1,4 +1,4 @@
-package com.example.pablo.perrsa;
+package com.example.pablo.perrsa.Login;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -14,12 +14,10 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.AsyncTask;
 
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.ContactsContract;
-import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -34,6 +32,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.crashlytics.android.Crashlytics;
+import com.example.pablo.perrsa.MenuPrincipal;
+import com.example.pablo.perrsa.R;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.AuthResult;
@@ -270,6 +270,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                         Toast.LENGTH_SHORT).show();
                             } else {
                                 startActivity(new Intent(LoginActivity.this, MenuPrincipal.class));
+                                finish();
                             }
 
                             // ...
@@ -345,6 +346,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
                             if(task.isSuccessful()){
                                 startActivity(new Intent(LoginActivity.this, MenuPrincipal.class));
+                                finish();
                             }else{
                                 Exception exception = task.getException();
                                 if(((FirebaseAuthException)exception).getErrorCode().equals("ERROR_EMAIL_ALREADY_IN_USE")){
@@ -357,14 +359,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                                 }
 
                             }
-
-                            if (!task.isSuccessful()) {
-
-                            } else {
-
-                            }
-
-                            // ...
                         }
                     });
         }

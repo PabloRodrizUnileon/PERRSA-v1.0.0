@@ -1,5 +1,6 @@
 package com.example.pablo.perrsa;
 
+import android.content.Intent;
 import android.support.design.widget.TabLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -15,6 +16,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
+import com.example.pablo.perrsa.Login.LoginActivity;
 import com.google.firebase.auth.FirebaseAuth;
 
 public class MenuPrincipal extends AppCompatActivity {
@@ -81,6 +83,7 @@ public class MenuPrincipal extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             FirebaseAuth.getInstance().signOut();
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
         }
 
